@@ -1,0 +1,21 @@
+{% for req in requests %}
+  <tr>
+    <td>{{ req.client.username }}</td>
+    <td>{{ req.goal }}</td>
+    <td>{{ req.created_at }}</td>
+    <td>
+      {% if req.status == 'pending' %}
+        <form method="post" action="{% url 'core:accept_request' req.id %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success btn-sm">Принять</button>
+        </form>
+        <form method="post" action="{% url 'core:reject_request' req.id %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm">Отклонить</button>
+        </form>
+      {% else %}
+        {{ req.get_status_display }}
+      {% endif %}
+    </td>
+  </tr>
+{% endfor %}

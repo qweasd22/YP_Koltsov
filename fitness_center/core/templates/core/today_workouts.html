@@ -1,0 +1,39 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Сегодняшние занятия{% endblock %}
+{% block content %}
+<h1 class="mb-4">Сегодняшние занятия</h1>
+{% if sessions %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Упражнение</th><th>Повторы</th>
+        <th>Пульс</th><th>Статус</th><th>Действие</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in sessions %}
+      <tr>
+        <td>{{ s.workout.exercise.name }}</td>
+        <td>{{ s.workout.sets }}×{{ s.workout.reps }}</td>
+        <td>{{ s.pulse }}</td>
+        <td>
+          {% if s.completed %}
+            <span class="badge bg-success">Выполнено</span>
+          {% else %}
+            <span class="badge bg-warning">Не выполнено</span>
+          {% endif %}
+        </td>
+        <td>
+          <a 
+            href="{% url 'core:update_session' s.id %}" 
+            class="btn btn-sm btn-outline-primary"
+          >Обновить</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>Сегодняшних занятий нет.</p>
+{% endif %}
+{% endblock %}

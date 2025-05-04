@@ -1,0 +1,17 @@
+{% extends 'accounts/base.html' %}
+{% load widget_tweaks %}
+{% block title %}Обновить занятие{% endblock %}
+{% block content %}
+<h1 class="mb-4">Обновить занятие</h1>
+<form method="post" class="w-50">{% csrf_token %}
+  <div class="mb-3">
+    {{ form.pulse.label_tag }}
+    {{ form.pulse|add_class:"form-control" }}
+  </div>
+  <div class="form-check mb-3">
+    {{ form.completed }} 
+    {{ form.completed.label_tag }}
+  </div>
+  <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends 'accounts/base.html' %}
+{% block title %}План тренировок{% endblock %}
+{% block content %}
+<h1 class="mb-4">План тренировок</h1>
+<ul class="nav nav-tabs" id="planTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button 
+      class="nav-link active" 
+      id="plan-tab" 
+      data-bs-toggle="tab" 
+      data-bs-target="#plan" 
+      type="button"
+    >План</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button 
+      class="nav-link" 
+      id="today-tab" 
+      data-bs-toggle="tab" 
+      data-bs-target="#today" 
+      type="button"
+    >Сегодня</button>
+  </li>
+</ul>
+<div class="tab-content mt-3">
+  <div 
+    class="tab-pane fade show active" 
+    id="plan" 
+    role="tabpanel"
+  >
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Упражнение</th>
+          <th>Частота/нед</th>
+          <th>Подходы</th>
+          <th>Повторы</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for w in workouts %}
+        <tr>
+          <td>{{ w.exercise.name }}</td>
+          <td>{{ w.frequency_per_week }}</td>
+          <td>{{ w.sets }}</td>
+          <td>{{ w.reps }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="tab-pane fade" id="today" role="tabpanel">
+    {% if sessions_today %}
+      <form method="post">{% csrf_token %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Упражнение</th>
+              <th>Повторы</th>
+              <th>Пульс</th>
+              <th>Выполнено</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in sessions_today %}
+            <tr>
+              <td>{{ s.workout.exercise.name }}</td>
+              <td>{{ s.workout.sets }}×{{ s.workout.reps }}</td>
+              <td>
+                <input 
+                  type="number" 
+                  name="pulse_{{ s.id }}" 
+                  class="form-control" 
+                  value="{{ s.pulse }}"
+                >
+              </td>
+              <td class="text-center">
+                <input 
+                  type="checkbox" 
+                  name="completed_{{ s.id }}" 
+                  {% if s.completed %}checked{% endif %}
+                >
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </form>
+    {% else %}
+      <p>Сегодня нет запланированных занятий.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

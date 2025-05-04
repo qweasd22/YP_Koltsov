@@ -1,0 +1,16 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Создать план{% endblock %}
+{% block content %}
+<h1 class="mb-4">План для заявки №{{ req.id }}</h1>
+<form method="post" class="w-50">{% csrf_token %}
+  <div class="mb-3">
+    <label class="form-label">Дата начала</label>
+    <input type="date" name="start_date" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Дата окончания</label>
+    <input type="date" name="end_date" class="form-control">
+  </div>
+  <button type="submit" class="btn btn-primary">Создать план</button>
+</form>
+{% endblock %}

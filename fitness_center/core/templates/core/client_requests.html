@@ -1,0 +1,43 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Мои заявки{% endblock %}
+{% block content %}
+<h1 class="mb-4">Мои заявки</h1>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Дата</th><th>Тренер</th><th>Цель</th>
+      <th>Статус</th><th>Отказ</th><th>Ожидание</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for req in requests %}
+    <tr>
+      <td>{{ req.created_at|date:"d.m.Y" }}</td>
+      <td>{{ req.trainer.full_name }}</td>
+      <td>{{ req.goal }}</td>
+      <td>
+        {% if req.status == 'pending' %}
+            <span class="badge bg-secondary">В обработке</span>
+        {% elif req.status == 'accepted' %}
+            <span class="badge bg-success">Принята</span>
+        {% else %}
+            <span class="badge bg-danger">Отклонена</span>
+        {% endif %}
+      </td>
+      <td>{{ req.reason }}</td>
+      <td>{{ req.created_at|timesince }} назад</td>
+      <td>
+        {% if req.status == 'accepted' and req.trainingplan %}
+          <a 
+            href="{% url 'core:training_plan' req.trainingplan.id %}" 
+            class="btn btn-sm btn-outline-primary"
+          >План</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7" class="text-center">Нет заявок</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

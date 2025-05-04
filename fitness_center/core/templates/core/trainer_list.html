@@ -1,0 +1,29 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Тренеры{% endblock %}
+{% block content %}
+<h1 class="mb-4">Выберите тренера</h1>
+<div class="row g-3">
+  {% for t in trainers %}
+  <div class="col-md-4">
+    <div class="card h-100">
+      {% if t.photo %}
+      <img src="{{ t.photo.url }}" class="card-img-top" alt="{{ t.full_name }}">
+      {% endif %}
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">{{ t.full_name }}</h5>
+        <p class="card-text">
+          Стаж: {{ t.trainerprofile.experience_years }} лет<br>
+          {{ t.trainerprofile.achievements }}
+        </p>
+        <a 
+          href="{% url 'core:create_request' %}?trainer={{ t.id }}" 
+          class="btn btn-primary mt-auto"
+        >Отправить заявку</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+    <p>Тренеры не найдены.</p>
+  {% endfor %}
+</div>
+{% endblock %}

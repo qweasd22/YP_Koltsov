@@ -1,0 +1,27 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Мои клиенты{% endblock %}
+{% block content %}
+<h1 class="mb-4">Мои клиенты</h1>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Клиент</th>
+      <th>% выполнения цикла</th>
+      <th>% выполн. упражнений</th>
+      <th>Ср. пульс</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in clients_data %}
+    <tr>
+      <td>{{ c.client.full_name }}</td>
+      <td>{{ c.percent_cycle|floatformat:1 }}%</td>
+      <td>{{ c.percent_ex|floatformat:1 }}%</td>
+      <td>{{ c.avg_pulse|default:"–" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4" class="text-center">Нет активных клиентов</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

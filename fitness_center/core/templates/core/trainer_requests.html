@@ -1,0 +1,47 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Заявки клиентов{% endblock %}
+{% block content %}
+<h1 class="mb-4">Новые заявки</h1>
+<div class="list-group">
+  {% for req in requests %}
+  <div class="list-group-item">
+    <div class="d-flex justify-content-between">
+      <h5 class="mb-1">{{ req.client.full_name }}</h5>
+      <small>{{ req.created_at|date:"d.m.Y H:i" }}</small>
+    </div>
+    <p class="mb-2">Цель: {{ req.goal }}</p>
+    <div>
+      <form method="post" class="d-inline">{% csrf_token %}
+        <button 
+          name="action" value="accept" 
+          class="btn btn-sm btn-success"
+        >Принять</button>
+      </form>
+      <button 
+        class="btn btn-sm btn-danger" 
+        data-bs-toggle="collapse" 
+        data-bs-target="#reason-{{ req.id }}"
+      >Отклонить</button>
+      <div class="collapse mt-2" id="reason-{{ req.id }}">
+        <form method="post">{% csrf_token %}
+          <div class="mb-2">
+            <textarea 
+              name="reason" 
+              class="form-control" 
+              rows="2" 
+              placeholder="Причина отказа"
+            ></textarea>
+          </div>
+          <button 
+            name="action" value="reject" 
+            class="btn btn-sm btn-danger"
+          >Подтвердить отказ</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+    <p>Новых заявок нет.</p>
+  {% endfor %}
+</div>
+{% endblock %}
