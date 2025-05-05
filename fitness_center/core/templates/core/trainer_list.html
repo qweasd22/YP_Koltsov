@@ -1,29 +1,58 @@
 {% extends 'accounts/base.html' %}
+{% load static %}
 {% block title %}Тренеры{% endblock %}
+
 {% block content %}
 <h1 class="mb-4">Выберите тренера</h1>
-<div class="row g-3">
-  {% for t in trainers %}
-  <div class="col-md-4">
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {% for trainer in trainers %}
+  <div class="col">
     <div class="card h-100">
-      {% if t.photo %}
-      <img src="{{ t.photo.url }}" class="card-img-top" alt="{{ t.full_name }}">
+      {% if trainer.photo %}
+        <img 
+          src="{{ trainer.photo.url }}" 
+          class="card-img-top" 
+          alt="{{ trainer.full_name|default:trainer.phone }}"
+        >
+      {% else %}
+        <img 
+          src="{% static 'images/default_profile.png' %}" 
+          class="card-img-top" 
+          alt="Нет фото"
+        >
       {% endif %}
       <div class="card-body d-flex flex-column">
-        <h5 class="card-title">{{ t.full_name }}</h5>
-        <p class="card-text">
-          Стаж: {{ t.trainerprofile.experience_years }} лет<br>
-          {{ t.trainerprofile.achievements }}
+        <h5 class="card-title">
+          {{ trainer.full_name|default:trainer.phone }}
+        </h5>
+        <p class="card-text mb-1">
+          <strong>Пол:</strong>
+          {{ trainer.get_gender_display|default:"Не указан" }}
+        </p>
+        {% if trainer.trainer_profile %}
+        <p class="card-text mb-1">
+          <strong>Стаж:</strong>
+          {{ trainer.trainer_profile.experience_years }} лет
+        </p>
+        <p class="card-text mb-1">
+          <strong>Достижения:</strong><br>
+          {{ trainer.trainer_profile.achievements|linebreaks }}
+        </p>
+        {% endif %}
+        <p class="card-text mt-auto">
+          <strong>Телефон:</strong> {{ trainer.phone }}
         </p>
         <a 
-          href="{% url 'core:create_request' %}?trainer={{ t.id }}" 
-          class="btn btn-primary mt-auto"
+          href="{% url 'core:create_request' %}?trainer={{ trainer.id }}" 
+          class="btn btn-primary mt-3"
         >Отправить заявку</a>
       </div>
     </div>
   </div>
   {% empty %}
-    <p>Тренеры не найдены.</p>
+    <div class="col">
+      <p>Тренеры не найдены.</p>
+    </div>
   {% endfor %}
 </div>
 {% endblock %}

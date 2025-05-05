@@ -13,7 +13,7 @@
     {% for req in requests %}
     <tr>
       <td>{{ req.created_at|date:"d.m.Y" }}</td>
-      <td>{{ req.trainer.full_name }}</td>
+      <td>{{ req.trainer.full_name|default:req.trainer.phone }}</td>
       <td>{{ req.goal }}</td>
       <td>
         {% if req.status == 'pending' %}

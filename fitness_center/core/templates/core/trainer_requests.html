@@ -1,47 +1,48 @@
 {% extends 'accounts/base.html' %}
-{% block title %}Заявки клиентов{% endblock %}
+{% block title %}Мои заявки{% endblock %}
+
 {% block content %}
-<h1 class="mb-4">Новые заявки</h1>
-<div class="list-group">
-  {% for req in requests %}
-  <div class="list-group-item">
-    <div class="d-flex justify-content-between">
-      <h5 class="mb-1">{{ req.client.full_name }}</h5>
-      <small>{{ req.created_at|date:"d.m.Y H:i" }}</small>
-    </div>
-    <p class="mb-2">Цель: {{ req.goal }}</p>
-    <div>
-      <form method="post" class="d-inline">{% csrf_token %}
-        <button 
-          name="action" value="accept" 
-          class="btn btn-sm btn-success"
-        >Принять</button>
-      </form>
-      <button 
-        class="btn btn-sm btn-danger" 
-        data-bs-toggle="collapse" 
-        data-bs-target="#reason-{{ req.id }}"
-      >Отклонить</button>
-      <div class="collapse mt-2" id="reason-{{ req.id }}">
-        <form method="post">{% csrf_token %}
-          <div class="mb-2">
-            <textarea 
-              name="reason" 
-              class="form-control" 
-              rows="2" 
-              placeholder="Причина отказа"
-            ></textarea>
+  <div class="container">
+    <h1 class="mb-4">Заявки тренера</h1>
+
+    <h2 class="mt-5">Неподтверждённые</h2>
+    {% if pending_requests %}
+      {% for req in pending_requests %}
+        <div class="card mb-3">
+          <div class="card-body">
+            <p><strong>Клиент:</strong>
+              {{ req.client.full_name|default:req.client.phone }}
+            </p>
+            <p><strong>Цель:</strong> {{ req.goal }}</p>
+            <form method="post" action="{% url 'core:process_request' req.pk %}">
+              {% csrf_token %}
+              <button name="action" value="accept" class="btn btn-success btn-sm">Принять</button>
+              <button name="action" value="reject" class="btn btn-danger btn-sm">Отклонить</button>
+            </form>
           </div>
-          <button 
-            name="action" value="reject" 
-            class="btn btn-sm btn-danger"
-          >Подтвердить отказ</button>
-        </form>
-      </div>
-    </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>Нет заявок на подтверждение.</p>
+    {% endif %}
+
+    <h2 class="mt-5">Подтверждённые</h2>
+    {% if accepted_requests %}
+      {% for req in accepted_requests %}
+        <div class="card mb-3">
+          <div class="card-body">
+            <p><strong>Клиент:</strong>
+              {{ req.client.full_name|default:req.client.phone }}
+            </p>
+            <p><strong>Цель:</strong> {{ req.goal }}</p>
+            <p><span class="badge bg-success">Подтверждена</span></p>
+            <a href="{% url 'core:create_training_plan' req.pk %}" class="btn btn-primary btn-sm">Создать план</a>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>Нет подтверждённых заявок.</p>
+    {% endif %}
+
   </div>
-  {% empty %}
-    <p>Новых заявок нет.</p>
-  {% endfor %}
-</div>
 {% endblock %}

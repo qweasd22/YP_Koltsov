@@ -27,15 +27,13 @@ def dashboard(request):
 
 @login_required
 def trainer_list(request):
-    # Только клиентам показываем список тренеров
-    if request.user.role == 'client':
-        trainers = User.objects.filter(role='trainer')
-        return render(request, 'core/trainer_list.html', {'trainers': trainers})
-    # Админу — сразу в админку
-    elif request.user.role == 'admin':
-        return redirect(reverse('admin:index'))
-    # Всем остальным — на дашборд
-    return redirect('core:dashboard')
+    if request.user.role != 'client':
+        return redirect('core:dashboard')
+    # Жадная загрузка профиля, чтобы не делать N+1 запросов
+    trainers = User.objects.filter(role='trainer').select_related('trainer_profile')
+    return render(request, 'core/trainer_list.html', {
+        'trainers': trainers
+    })
 @login_required
 def create_request(request):
     # клиент отправляет заявку тренеру
@@ -60,9 +58,18 @@ def client_requests(request):
 
 @login_required
 def trainer_requests(request):
-    # новые заявки тренера
-    qs = ClientRequest.objects.filter(trainer=request.user, status='pending')
-    return render(request, 'core/trainer_requests.html', {'requests': qs})
+    pending_requests = ClientRequest.objects.filter(
+        trainer=request.user,
+        status='pending'
+    )
+    accepted_requests = ClientRequest.objects.filter(
+        trainer=request.user,
+        status='accepted'
+    )
+    return render(request, 'core/trainer_requests.html', {
+        'pending_requests': pending_requests,
+        'accepted_requests': accepted_requests,
+    })
 
 @login_required
 def process_request(request, pk):
@@ -80,25 +87,49 @@ def process_request(request, pk):
             req.save()
             return redirect('core:trainer_requests')
     return render(request, 'core/process_request.html', {'req': req})
-
+from .models import ClientRequest, TrainingPlan, WorkoutSession
+from .forms import TrainingPlanForm, IndividualWorkoutFormSet
 @login_required
 def create_training_plan(request, pk):
-    # создание плана тренером и генерация сессий
     req = get_object_or_404(ClientRequest, pk=pk, trainer=request.user, status='accepted')
+
+    # если план уже есть — редиректим на его просмотр
     if hasattr(req, 'trainingplan'):
         return redirect('core:training_plan', plan_id=req.trainingplan.id)
+
     if request.method == 'POST':
-        start = request.POST['start_date']
-        end = request.POST['end_date']
-        plan = TrainingPlan.objects.create(request=req, start_date=start, end_date=end)
-        # создаем сессии для каждого упражнения в плане на каждый день
-        workouts = plan.individualworkout_set.all()
-        dates = [plan.start_date + timedelta(days=i) for i in range((plan.end_date - plan.start_date).days + 1)]
-        for wo in workouts:
-            for d in dates:
-                WorkoutSession.objects.create(workout=wo, date=d)
-        return redirect('core:training_plan', plan_id=plan.id)
-    return render(request, 'core/create_training_plan.html', {'req': req})
+        form = TrainingPlanForm(request.POST)
+        formset = IndividualWorkoutFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            # сохраняем сам план
+            plan = form.save(commit=False)
+            plan.request = req
+            plan.save()
+
+            # прикрепляем все упражнения к плану
+            formset.instance = plan
+            formset.save()
+
+            # генерим сессии на каждый день цикла и каждое упражнение
+            start = form.cleaned_data['start_date']
+            end   = form.cleaned_data['end_date']
+            days = (end - start).days + 1
+            dates = [start + timedelta(days=i) for i in range(days)]
+
+            for workout in plan.individualworkout_set.all():
+                for d in dates:
+                    WorkoutSession.objects.create(workout=workout, date=d)
+
+            return redirect('core:training_plan', plan_id=plan.id)
+    else:
+        form = TrainingPlanForm()
+        formset = IndividualWorkoutFormSet()
+
+    return render(request, 'core/create_training_plan.html', {
+        'req': req,
+        'form': form,
+        'formset': formset,
+    })
 
 @login_required
 def training_plan_view(request, plan_id):

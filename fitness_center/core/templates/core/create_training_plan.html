@@ -1,16 +1,46 @@
 {% extends 'accounts/base.html' %}
+{% load widget_tweaks %}
 {% block title %}Создать план{% endblock %}
+
 {% block content %}
 <h1 class="mb-4">План для заявки №{{ req.id }}</h1>
-<form method="post" class="w-50">{% csrf_token %}
-  <div class="mb-3">
-    <label class="form-label">Дата начала</label>
-    <input type="date" name="start_date" class="form-control">
+<form method="post" class="w-75">{% csrf_token %}
+  {{ form.non_field_errors }}
+  <div class="row g-3 mb-4">
+    <div class="col">
+      {{ form.start_date.label_tag }}
+      {{ form.start_date }}
+    </div>
+    <div class="col">
+      {{ form.end_date.label_tag }}
+      {{ form.end_date }}
+    </div>
   </div>
-  <div class="mb-3">
-    <label class="form-label">Дата окончания</label>
-    <input type="date" name="end_date" class="form-control">
-  </div>
+
+  <!-- Формсет упражнений -->
+  {{ formset.management_form }}
+  <h5>Упражнения</h5>
+  {% for subform in formset %}
+    <div class="row g-3 align-items-end mb-3">
+      <div class="col-md-4">
+        {{ subform.exercise.label_tag }}
+        {{ subform.exercise }}
+      </div>
+      <div class="col-md-2">
+        {{ subform.frequency_per_week.label_tag }}
+        {{ subform.frequency_per_week }}
+      </div>
+      <div class="col-md-2">
+        {{ subform.sets.label_tag }}
+        {{ subform.sets }}
+      </div>
+      <div class="col-md-2">
+        {{ subform.reps.label_tag }}
+        {{ subform.reps }}
+      </div>
+    </div>
+  {% endfor %}
+
   <button type="submit" class="btn btn-primary">Создать план</button>
 </form>
 {% endblock %}
