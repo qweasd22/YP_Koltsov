@@ -38,3 +38,12 @@ class CustomAuthenticationForm(AuthenticationForm):
         strip=False,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['full_name', 'birth_date', 'gender', 'goal', 'experience_years', 'achievements', 'photo']
+
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'type': 'date'}),
+        }

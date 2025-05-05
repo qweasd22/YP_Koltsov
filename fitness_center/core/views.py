@@ -185,3 +185,37 @@ def trainer_clients(request):
         })
     return render(request, 'core/trainer_clients.html', {'clients_data': clients_data})
 
+from accounts.forms import UserProfileForm
+@login_required
+def edit_profile(request):
+    user = request.user
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')  # перенаправление на страницу профиля
+    else:
+        form = UserProfileForm(instance=user)
+
+    return render(request, 'accounts/edit_profile.html', {'form': form})
+from django.contrib import messages
+@login_required
+def profile(request):
+    """
+    Показывает и редактирует профиль текущего пользователя.
+    GET  — рендерит форму с текущими данными.
+    POST — сохраняет изменения и перенаправляет обратно на себя.
+    """
+    user = request.user
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Профиль успешно сохранён.")
+            return redirect('accounts:profile')
+    else:
+        form = UserProfileForm(instance=user)
+
+    return render(request, 'accounts/profile.html', {
+        'form': form,
+    })

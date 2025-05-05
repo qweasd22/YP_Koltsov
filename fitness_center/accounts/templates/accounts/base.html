@@ -1,4 +1,5 @@
 {% load widget_tweaks %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -34,6 +35,9 @@
               <li class="nav-item"><a class="nav-link" href="{% url 'core:trainer_requests' %}">Заявки</a></li>
               <li class="nav-item"><a class="nav-link" href="{% url 'core:trainer_clients' %}">Клиенты</a></li>
             {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'profile' %}">Профиль</a>
+            </li>
             <form method="post" class="d-inline" action="{% url 'logout' %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">Выйти</button>

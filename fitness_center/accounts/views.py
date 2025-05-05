@@ -4,7 +4,7 @@ from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views import View
 
-from .forms import CustomUserCreationForm, CustomAuthenticationForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, UserProfileForm
 
 class SignUpView(View):
     form_class = CustomUserCreationForm
@@ -31,3 +31,5 @@ class CustomLoginView(LoginView):
 
 class CustomLogoutView(LogoutView):
     next_page = reverse_lazy('login')
+
+from django.contrib import messages

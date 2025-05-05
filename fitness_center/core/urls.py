@@ -36,10 +36,10 @@ urlpatterns = [
     path('plan/<int:plan_id>/', views.training_plan_view, name='training_plan'),
     path('today/', views.today_workouts, name='today_workouts'),
     path('session/<int:pk>/update/', views.update_session, name='update_session'),
-
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
     # --- Trainer dashboard ---
     path('trainer/clients/', views.trainer_clients, name='trainer_clients'),
-
+    
     # Список тренеров (для клиента)
     path('trainers/', views.trainer_list, name='trainer_list'),
 ]
